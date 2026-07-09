@@ -235,10 +235,17 @@ jobs:
         run: |
           MISSING=false
           OPTIONAL_FIRMWARE_SLUGS="guition-esp32-p4-jc8012p4a1 guition-esp32-p4-jc8012p4a1-v2 esp32-p4-86 waveshare-esp32-p4-10-1 esp32-p4-86-lite"
+          ANY_MANIFEST=false
+          for SLUG in $DEVICE_SLUGS; do
+            if [ -f "firmware/${SLUG}/manifest.json" ]; then
+              ANY_MANIFEST=true
+              break
+            fi
+          done
           for SLUG in $DEVICE_SLUGS; do
             MANIFEST="firmware/${SLUG}/manifest.json"
             if [ ! -f "$MANIFEST" ]; then
-              if echo " ${OPTIONAL_FIRMWARE_SLUGS} " | grep -q " ${SLUG} "; then
+              if [ "${ANY_MANIFEST}" = false ] || echo " ${OPTIONAL_FIRMWARE_SLUGS} " | grep -q " ${SLUG} "; then
                 echo "::warning::No firmware manifest found for ${SLUG} yet — install button will work after the first release asset is published"
               else
                 echo "::error::No firmware manifest found for ${SLUG} — install page will be non-functional"
