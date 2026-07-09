@@ -39,8 +39,13 @@ def package_substitution_lines(device: dict) -> list[str]:
     ]
     if package.get("firmwareVersion"):
         lines.append(f'  firmware_version: "{package["firmwareVersion"]}"')
+    profile_ref = package.get("profileRef")
     added_voice_substitutions = False
     for key, value in package["substitutions"].items():
+        if profile_ref and key in PROFILE_LAYOUT_KEYS:
+            # This key is supplied by the shared layout profile (see
+            # profiles/<profile_ref>.yaml) instead of being duplicated here.
+            continue
         lines.append(f"  {key}: {value}")
         if key == "clock_bar_visual_gap":
             lines.extend(voice_substitution_lines(device))
@@ -61,6 +66,25 @@ def package_substitution_lines(device: dict) -> list[str]:
         )
     lines.extend(cover_art_substitution_lines(device))
     return lines
+
+
+# Layout substitutions that live in a shared profile file (profiles/*.yaml)
+# when a device opts in via firmware.package.profileRef. Verified identical
+# across every upstream device sharing the same (screen_width, screen_height,
+# slot count) combination as of espcontrol v2.5.0 - see profiles/README.md.
+PROFILE_LAYOUT_KEYS = [
+    "screen_width", "screen_height", "content_width",
+    "setup_icon_font_id", "setup_title_font_id", "setup_body_font_id",
+    "setup_pad_row", "setup_loading_pad_row",
+    "setup_action_button_width", "setup_action_button_height", "setup_action_button_radius",
+    "icon_font", "subpage_chevron_font", "label_font", "media_title_font",
+    "unit_font", "sensor_value_font",
+    "padding", "radius",
+    "main_page_card_gap", "main_page_pad_top", "main_page_compact_pad_top",
+    "clock_bar_item_gap", "clock_bar_visual_gap", "clock_font_size", "clock_cx", "clock_cy",
+    "screen_saver_clock_min_brightness", "screen_saver_clock_default_brightness",
+    "screen_schedule_clock_min_brightness", "screen_schedule_clock_default_brightness",
+]
 
 
 def voice_substitution_lines(device: dict) -> list[str]:
@@ -143,12 +167,21 @@ def package_file_text(device: dict) -> str:
                 "",
             ]
         )
+    profile_include_lines = []
+    if package.get("profileRef"):
+        profile_include_lines = [
+            "  # ---------------------------------------------------------------------------",
+            "  # Shared layout profile (screen size + card grid, manufacturer-independent)",
+            "  # ---------------------------------------------------------------------------",
+            include_line("layout_profile", f"!include ../../profiles/{package['profileRef']}.yaml"),
+        ]
     lines.extend(
         [
             "substitutions:",
             *package_substitution_lines(device),
             "",
             "packages:",
+            *profile_include_lines,
             "  # ---------------------------------------------------------------------------",
             "  # Device, assets, and LVGL base",
             "  # ---------------------------------------------------------------------------",

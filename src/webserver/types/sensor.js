@@ -45,6 +45,11 @@ var SENSOR_CARD_METADATA = {
       return !sensorCardIsLocal(b) && b.precision !== "icon" && b.precision !== "text";
     },
   },
+  activeColor: {
+    label: "Lit when active",
+    idSuffix: "sensor-active-color",
+    checked: sensorActiveColorEnabled,
+  },
   preview: {
     iconBadge: "toggle-switch",
     numericBadge: "gauge",
@@ -214,6 +219,16 @@ registerButtonType("sensor", {
     );
     var outputTextInp = outputTextField.input;
     stateTextGrid.appendChild(outputTextField.field);
+
+    // "Lit when active" (#842): the card switches to the active colour while
+    // the entity state matches Input Status above. Rendered full-width inside
+    // the translation grid so it visually belongs to the first status pair.
+    var activeColorRow = helpers.renderCardActiveColorToggle(
+      stateTextGrid, b, helpers,
+      SENSOR_CARD_METADATA.activeColor, setSensorActiveColorEnabled);
+    if (activeColorRow && activeColorRow.row) {
+      activeColorRow.row.style.gridColumn = "1 / -1";
+    }
 
     var inputText2Field = helpers.textField(
       "Input Status 2",

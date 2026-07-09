@@ -1,0 +1,42 @@
+# =============================================================================
+# LAYOUT PROFILE - profile-1280x800-20slots
+# =============================================================================
+# Resolution- and slot-count-driven layout substitutions. Shared verbatim by
+# every device with this screen size and card grid, regardless of hardware
+# manufacturer (verified identical across all upstream devices with this
+# combination as of espcontrol v2.5.0). Device-specific hardware wiring lives
+# in each device's own hardware.yaml, not here.
+# =============================================================================
+
+substitutions:
+  screen_width: "1280"
+  screen_height: "800"
+  content_width: "760"
+  setup_icon_font_id: font_icon_main
+  setup_title_font_id: font_text_title
+  setup_body_font_id: font_text_body
+  setup_pad_row: "20"
+  setup_loading_pad_row: "40"
+  setup_action_button_width: "200"
+  setup_action_button_height: "56"
+  setup_action_button_radius: "12"
+  icon_font: font_icon_main
+  subpage_chevron_font: font_icon_status
+  label_font: font_text_body
+  media_title_font: font_text_title
+  unit_font: font_text_body
+  sensor_value_font: font_number_value
+  padding: 18px
+  radius: 11px
+  main_page_card_gap: "10"
+  main_page_pad_top: "46"
+  main_page_compact_pad_top: "5"
+  clock_bar_item_gap: "78"
+  clock_bar_visual_gap: "10"
+  clock_font_size: "220"
+  clock_cx: "640"
+  clock_cy: "400"
+  screen_saver_clock_min_brightness: "1"
+  screen_saver_clock_default_brightness: "35"
+  screen_schedule_clock_min_brightness: "1"
+  screen_schedule_clock_default_brightness: "10"

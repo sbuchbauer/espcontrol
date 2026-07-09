@@ -101,16 +101,24 @@ const screenProducts: Record<string, Record<string, string>> = {
     resolution: '1280 x 800',
     processor: 'ESP32-P4',
   },
-  'screens/jc8012p4a1-v2.md': {
-    name: 'Guition JC8012P4A1 V2',
-    brand: 'Guition',
-    model: 'JC8012P4A1 V2',
+  'screens/waveshare-p4-10-1.md': {
+    name: 'Waveshare 10.1-inch ESP32-P4',
+    brand: 'Waveshare',
+    model: 'ESP32-P4-WIFI6-Touch-LCD-10.1',
     size: '10.1 inches',
     resolution: '1280 x 800',
     processor: 'ESP32-P4',
   },
   'screens/p4-86.md': {
     name: 'ESP32-P4 86 Panel',
+    brand: 'ESP32-P4',
+    model: 'ESP32-P4-86-Panel-ETH-2RO',
+    size: '4 inches',
+    resolution: '720 x 720',
+    processor: 'ESP32-P4',
+  },
+  'screens/p4-86-lite.md': {
+    name: 'ESP32-P4 86 Panel (no relays)',
     brand: 'ESP32-P4',
     model: 'ESP32-P4-86-Panel-ETH-2RO',
     size: '4 inches',
@@ -163,7 +171,7 @@ const faqItems = [
   {
     question: 'How Many Cards Can I Have?',
     answer:
-      'The home screen supports 20 cards on JC8012P4A1 and JC8012P4A1 V2, 15 on JC1060P470, 6 on JC4880P443, and 9 on 4848S040 or the ESP32-P4 86 Panel, with more available through subpages.',
+      'The home screen supports 20 cards on JC8012P4A1, 15 on JC1060P470, 6 on JC4880P443, and 9 on 4848S040 or the ESP32-P4 86 Panel, with more available through subpages.',
   },
   {
     question: 'What Is a Subpage?',
@@ -178,7 +186,7 @@ const faqItems = [
   {
     question: 'Which Panels Are Supported?',
     answer:
-      'EspControl supports the Guition JC8012P4A1, JC8012P4A1 V2, JC1060P470, JC4880P443, 4848S040, and ESP32-P4 86 Panel touchscreens.',
+      'EspControl supports the Guition JC8012P4A1, JC1060P470, JC4880P443, 4848S040, and ESP32-P4 86 Panel touchscreens.',
   },
   {
     question: 'Does the Panel Work with Other Smart Home Platforms?',
@@ -392,10 +400,11 @@ export default defineConfig({
         text: 'Supported Screens',
         items: [
           { text: '10.1-inch JC8012P4A1', link: '/screens/jc8012p4a1' },
-          { text: '10.1-inch JC8012P4A1 V2', link: '/screens/jc8012p4a1-v2' },
+          { text: '10.1-inch Waveshare P4', link: '/screens/waveshare-p4-10-1' },
           { text: '7-inch JC1060P470', link: '/screens/jc1060p470' },
           { text: '4.3-inch JC4880P443', link: '/screens/jc4880p443' },
           { text: '4-inch ESP32-P4 86 Panel', link: '/screens/p4-86' },
+          { text: '4-inch P4 86 Panel (no relays)', link: '/screens/p4-86-lite' },
           { text: '4-inch 4848S040', link: '/screens/4848s040' },
           { text: 'Printable Stands', link: '/reference/3d-printable-stands' },
         ],

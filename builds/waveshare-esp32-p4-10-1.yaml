@@ -1,0 +1,30 @@
+# =============================================================================
+# BUILD PROFILE - Waveshare ESP32-P4-WIFI6-Touch-LCD-10.1 (10.1" landscape)
+# =============================================================================
+# CI/local build entry point. Includes the full device package and adds
+# MAC suffix for unique naming. Bundles the matching web UI so branch/release
+# builds do not load the shared GitHub Pages copy from main.
+# =============================================================================
+
+substitutions:
+  name: "espcontrol-waveshare-10-1"
+  friendly_name: "EspControl Waveshare 10.1"
+  espcontrol_component_url: "file:///config"
+  mdi_font_file: "/config/common/assets/fonts/materialdesignicons-webfont-7.4.47.ttf"
+  espcontrol_component_ref: "HEAD"
+
+esphome:
+  name_add_mac_suffix: true
+
+packages:
+  espcontrol: !include ../devices/waveshare-esp32-p4-10-1/packages.yaml
+
+wifi:
+  ap:
+    ssid: "${friendly_name}"
+
+captive_portal:
+
+web_server:
+  js_url: ""
+  js_include: "../docs/public/webserver/waveshare-esp32-p4-10-1/www.js"

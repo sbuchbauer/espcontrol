@@ -22,14 +22,20 @@ inline void apply_toggle_text_sensor_label(ToggleTextSensorCtx *ctx) {
   set_wrapped_button_label_text(ctx->text_lbl, ctx->on ? ctx->sensor_text : ctx->steady_text);
 }
 
+inline void apply_sensor_active_color_resolved(lv_obj_t *btn, bool active_color,
+                                               bool active,
+                                               uint32_t on_color, uint32_t sensor_color) {
+  if (!btn || !active_color) return;
+  lv_obj_set_style_bg_color(btn, lv_color_hex(active ? on_color : sensor_color),
+    static_cast<lv_style_selector_t>(LV_PART_MAIN) | static_cast<lv_style_selector_t>(LV_STATE_DEFAULT));
+}
+
 inline void apply_sensor_active_color(lv_obj_t *btn, bool active_color,
                                       esphome::StringRef state,
                                       uint32_t on_color, uint32_t sensor_color,
                                       bool unavailable) {
-  if (!btn || !active_color) return;
-  uint32_t next_color = (!unavailable && is_entity_on_ref(state)) ? on_color : sensor_color;
-  lv_obj_set_style_bg_color(btn, lv_color_hex(next_color),
-    static_cast<lv_style_selector_t>(LV_PART_MAIN) | static_cast<lv_style_selector_t>(LV_STATE_DEFAULT));
+  apply_sensor_active_color_resolved(btn, active_color,
+    !unavailable && is_entity_on_ref(state), on_color, sensor_color);
 }
 
 inline void apply_control_availability(lv_obj_t *visual_obj, lv_obj_t *input_obj,
@@ -157,8 +163,21 @@ inline void subscribe_sensor_text_card_value(lv_obj_t *text_lbl, const ParsedCfg
     std::function<void(esphome::StringRef)>(
       [text_lbl, p, availability_obj, active_color, on_color, sensor_color](esphome::StringRef state) {
       bool unavailable = ha_state_unavailable_ref(state);
-      apply_sensor_active_color(availability_obj, active_color, state,
-        on_color, sensor_color, unavailable);
+      // "Lit when active" for Text-mode sensor cards (#842): when state labels
+      // are enabled and Input Status is set, the card lights exactly when the
+      // first translation matches (same normalization as the label lookup).
+      // Without labels the generic on/home/open logic applies unchanged.
+      bool active = false;
+      if (!unavailable) {
+        std::string input = cfg_option_value(p.options, SENSOR_STATE_INPUT_OPTION);
+        if (sensor_state_labels_enabled(p) && !input.empty()) {
+          active = normalized_state_text(state) == sensor_state_translation_key(input);
+        } else {
+          active = is_entity_on_ref(state);
+        }
+      }
+      apply_sensor_active_color_resolved(availability_obj, active_color, active,
+        on_color, sensor_color);
       set_wrapped_button_label_text(text_lbl, sensor_state_display_text(p, state));
     })
   );

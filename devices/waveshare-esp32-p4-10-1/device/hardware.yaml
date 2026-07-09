@@ -1,0 +1,121 @@
+# =============================================================================
+# HARDWARE - Waveshare ESP32-P4-WIFI6-Touch-LCD-10.1 board wiring
+# =============================================================================
+# Only the parts that change when adapting to a different-but-similar panel
+# (issue #839): backlight, I2C bus, touchscreen, display panel definition,
+# and the board-specific GT9271 settle delay (shared LCD/touch reset line).
+# =============================================================================
+
+esphome:
+  on_boot:
+    - priority: -150
+      then:
+        # The panel shares one reset line between the LCD and the GT9271
+        # touch controller. Give the touch chip time to settle after the
+        # display reset before the gt911 platform initializes it, otherwise
+        # touch setup fails intermittently with a calibration error.
+        - lambda: |-
+            ESP_LOGI("waveshare_p4_10_1", "Waiting for GT9271 to settle after shared LCD reset");
+        - delay: 300ms
+
+# ---------------------------------------------------------------------------
+# Backlight (LEDC PWM output + monochromatic light entity)
+# ---------------------------------------------------------------------------
+output:
+  - platform: ledc
+    pin: GPIO26
+    id: gpio_backlight_pwm
+
+light:
+  - platform: monochromatic
+    output: gpio_backlight_pwm
+    name: Display Backlight
+    icon: mdi:lightbulb-on
+    id: display_backlight
+    restore_mode: RESTORE_DEFAULT_ON
+    default_transition_length: 0s
+    gamma_correct: 1.0
+    on_turn_on:
+      then:
+        - if:
+            condition:
+              lambda: |-
+                auto now = panel_time_or_fallback(id(panel_time).now(), id(homeassistant_time).now());
+                return (id(screen_schedule_asleep) &&
+                        !id(schedule_mode_clock)) ||
+                       screen_schedule_waiting_for_time(
+                         id(screen_schedule_trigger).state,
+                         id(schedule_enabled).state,
+                         now.is_valid());
+            then:
+              - script.execute: backlight_force_display_off
+            else:
+              - if:
+                  condition:
+                    lambda: 'return id(screensaver_display_off_active);'
+                  then:
+                    - script.execute: screensaver_wake
+    on_turn_off:
+      then:
+        - if:
+            condition:
+              lambda: 'return id(display_takeover_suspended);'
+            then:
+              - lambda: 'ESP_LOGD("backlight", "Restoring backlight after OFF event while image modal is active");'
+              - delay: 10ms
+              - script.execute: backlight_apply_brightness
+            else:
+              - if:
+                  condition:
+                    lambda: |-
+                      return !id(display_asleep) &&
+                             !id(screen_schedule_asleep) &&
+                             !id(screensaver_display_off_active) &&
+                             !id(screensaver_dimmed_active);
+                  then:
+                    - script.execute: screen_schedule_manual_sleep
+
+# ---------------------------------------------------------------------------
+# I2C bus and touchscreen (GT9271 capacitive, wakes screensaver on touch)
+# ---------------------------------------------------------------------------
+i2c:
+  - id: bus_a
+    sda: GPIO07
+    scl: GPIO08
+    frequency: 400kHz
+    sda_pullup_enabled: False
+    scl_pullup_enabled: False
+
+# The GT9271 is driven by ESPHome's built-in gt911 platform. Its reset and
+# interrupt lines are not wired to the ESP32-P4 on this board (GPIO_NUM_NC in
+# the Waveshare BSP), so the driver runs in pure I2C polling mode. A late
+# setup_priority ensures the touch controller initializes only after the
+# display reset completed (see the on_boot settle delay above).
+touchscreen:
+  - platform: gt911
+    id: my_touchscreen
+    i2c_id: bus_a
+    setup_priority: -200
+    transform:
+      swap_xy: false
+      mirror_x: false
+      mirror_y: false
+    on_touch:
+      - script.execute: screensaver_wake
+
+# ---------------------------------------------------------------------------
+# Display (10.1" 800x1280 native MIPI DSI panel)
+# ---------------------------------------------------------------------------
+display:
+  - platform: mipi_dsi
+    id: my_display
+    model: WAVESHARE-P4-NANO-10.1
+    color_order: RGB
+    reset_pin:
+      number: GPIO27
+    update_interval: never
+    auto_clear_enabled: false
+    dimensions:
+      width: 800
+      height: 1280
+

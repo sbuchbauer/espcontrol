@@ -25,6 +25,8 @@ Sensor cards are read-only — tapping them does nothing.
 3. Choose **Icon**, **Numeric**, or **Text** from the mode tabs. Numeric is selected by default.
 4. Enter a **Sensor Entity** — the Home Assistant entity ID of the sensor you want to display.
 
+When **Advanced** is enabled in Text mode, a **Lit when active** toggle appears below the first status pair: while the sensor state matches **Input Status**, the whole card switches to the active colour (the same behaviour as **Lit When Open** on Doors & Windows cards). This is useful for status cards like a washing machine that should light up while a cycle is running.
+
 To display a sensor that runs directly on the device, change **Source** to **Local Sensor**. See [Local Sensor](/card-types/local-sensors) for the local setup details.
 
 For **Icon** mode:
