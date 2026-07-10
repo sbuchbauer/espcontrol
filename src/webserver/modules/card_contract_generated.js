@@ -1303,12 +1303,12 @@ var CARD_CONTRACT_CARDS = {
       },
       {
         "name": "active_color",
-        "label": "Active Color",
+        "label": "Lit when active",
         "kind": "flag",
-        "hidden": true,
-        "migration": "drop",
         "supportedWhen": {
-          "never": true
+          "precision": [
+            "text"
+          ]
         }
       },
       {
