@@ -153,7 +153,8 @@ api:
     - script.execute: cover_art_resubscribe
 
 image:
-  - file: "https://raw.githubusercontent.com/jtenniswood/esphome-media-player/main/common/assets/placeholder.png"
+  - platform: file
+    file: "https://raw.githubusercontent.com/jtenniswood/esphome-media-player/main/common/assets/placeholder.png"
     id: cover_art_placeholder
     type: RGB565
     byte_order: LITTLE_ENDIAN
