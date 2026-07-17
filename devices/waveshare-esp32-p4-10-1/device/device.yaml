@@ -77,15 +77,15 @@ espcontrol:
 esphome:
   name: ${name}
   friendly_name: ${friendly_name}
-  platformio_options:
-    build_flags:
-      - "-Wno-deprecated-declarations"
-      - "-DESPCONTROL_DISABLE_TODO=1"
-      # Keep LVGL active while the backlight is off so the touch controller
-      # can still deliver the wake tap from display-off screensaver.
-      - "-DESPCONTROL_KEEP_LVGL_ACTIVE_ON_DISPLAY_OFF=1"
-    build_src_flags:
-      - "-Wno-literal-suffix"
+  build_flags:
+    - "-Wno-deprecated-declarations"
+    - "-DESPCONTROL_DISABLE_TODO=1"
+    # Keep LVGL active while the backlight is off so the touch controller
+    # can still deliver the wake tap from display-off screensaver.
+    - "-DESPCONTROL_KEEP_LVGL_ACTIVE_ON_DISPLAY_OFF=1"
+    # Keep the ESP-IDF header warning suppressed without warning on C sources.
+    - "-Wno-literal-suffix"
+    - "-Wno-complain-wrong-lang"
   on_boot:
     - priority: 260
       then:
